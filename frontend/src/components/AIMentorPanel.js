@@ -27,7 +27,13 @@ const AIMentorPanel = () => {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+        // Scroll only if near bottom (threshold 100px) or if just sent a message (isTyping logic handles AI response)
+        const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+        
+        if (isNearBottom) {
+             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
     }
   }, [messages, isTyping]);
 
@@ -90,7 +96,7 @@ const AIMentorPanel = () => {
       {/* Chat Area */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth custom-scrollbar bg-stone-100 dark:bg-slate-900"
+        className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth custom-scrollbar bg-stone-100 dark:bg-slate-900 h-full"
       >
         {messages.map((msg) => (
           <motion.div 
@@ -122,7 +128,12 @@ const AIMentorPanel = () => {
                   {msg.text}
                 </ReactMarkdown>
               ) : (
-                 <div className="whitespace-pre-wrap">{msg.text}</div>
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]}
+                  className="prose prose-sm prose-invert max-w-none prose-p:my-1 prose-pre:bg-indigo-800 prose-pre:p-2 prose-pre:rounded-lg"
+                >
+                  {msg.text}
+                </ReactMarkdown>
               )}
             </div>
           </motion.div>

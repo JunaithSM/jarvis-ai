@@ -8,13 +8,19 @@ import CodeEditor from './components/CodeEditor';
 import AIMentorPanel from './components/AIMentorPanel';
 import TerminalPanel from './components/TerminalPanel';
 
+import GuidedPopEditor from './components/GuidedPopEditor';
+
 // Styles
 import './index.css';
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
-  const [activeTab, setActiveTab] = useState('editor'); // For mobile: 'editor', 'terminal', 'chat'
+  const [activeTab, setActiveTab] = useState('editor');
   
+  // Guided Pop Editor State
+  const [isPopEditorOpen, setIsPopEditorOpen] = useState(false);
+  const [popTemplate, setPopTemplate] = useState("for [i] in range([10]):\n    [print](i)");
+
   // Theme State with Persistence
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -61,6 +67,14 @@ function App() {
         </div>
         
         <div className="flex items-center gap-4">
+           {/* Pop Editor Trigger */}
+           <button 
+             onClick={() => setIsPopEditorOpen(true)}
+             className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-100 dark:bg-slate-800 text-stone-600 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors border border-stone-200 dark:border-slate-700 font-medium text-xs"
+           >
+             <span>Guided Code</span>
+           </button>
+
            {/* Theme Toggle */}
            <button 
              onClick={toggleTheme}
@@ -178,7 +192,17 @@ function App() {
     </div>
   );
 
-  return isMobile ? <MobileLayout /> : <DesktopLayout />;
+  return (
+    <>
+      {isMobile ? <MobileLayout /> : <DesktopLayout />}
+      <GuidedPopEditor 
+        isOpen={isPopEditorOpen} 
+        onClose={() => setIsPopEditorOpen(false)}
+        template={popTemplate}
+        onComplete={(vals) => console.log('Completed:', vals)}
+      />
+    </>
+  );
 }
 
 export default App;
