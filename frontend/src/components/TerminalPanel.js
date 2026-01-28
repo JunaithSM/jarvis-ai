@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { TerminalSquare, XCircle, RotateCcw } from 'lucide-react';
+import { TerminalSquare, RotateCcw } from 'lucide-react';
 
 const TerminalPanel = () => {
   const [history, setHistory] = useState([

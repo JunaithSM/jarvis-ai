@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, Terminal as TerminalIcon, MessageSquare, Code2, Play, Sun, Moon } from 'lucide-react';
+import { Terminal as TerminalIcon, MessageSquare, Code2, Play, Sun, Moon } from 'lucide-react';
 
 // Components
 import CodeEditor from './components/CodeEditor';
@@ -19,7 +19,7 @@ function App() {
   
   // Guided Pop Editor State
   const [isPopEditorOpen, setIsPopEditorOpen] = useState(false);
-  const [popTemplate, setPopTemplate] = useState("for [i] in range([10]):\n    [print](i)");
+  const [popTemplate] = useState("for [i] in range([10]):\n    [print](i)");
 
   // Theme State with Persistence
   const [theme, setTheme] = useState(() => {

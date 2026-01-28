@@ -4,7 +4,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
 import { cpp } from '@codemirror/lang-cpp';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { githubLight } from '@uiw/codemirror-theme-github'; // We'll try to use a light theme if installed, or default
+
 import { ChevronDown, Play, Code2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
