@@ -1,0 +1,148 @@
+/* Header - Calm Focus Theme */
+
+.header-island {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) !important; /* Center horizontally, motion controls Y */
+  width: 95%; /* Responsive width */
+  max-width: 1200px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  z-index: 100;
+  
+  /* Override Glass Panel specific to header */
+  border-radius: var(--radius-pill);
+  background: rgba(42, 45, 54, 0.85); /* Slightly more opaque */
+}
+
+/* Brand */
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.logo-circle {
+  width: 32px;
+  height: 32px;
+  background: var(--color-sand-500);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-inner {
+  width: 12px;
+  height: 12px;
+  background: var(--bg-deep);
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+.header__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.header__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.header__lesson {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+/* Zen Progress */
+.header__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.zen-progress-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  min-width: 300px;
+}
+
+.zen-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.zen-bar-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.zen-bar-fill {
+  height: 100%;
+  background: var(--color-sage-500);
+  border-radius: var(--radius-pill);
+}
+
+.zen-value {
+  font-size: 0.75rem;
+  font-family: var(--font-code);
+  color: var(--color-sage-500);
+}
+
+/* Actions */
+.header__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.header__btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.header__btn:hover {
+  color: var(--text-primary);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .header-island {
+    top: 10px;
+    width: 92%;
+    padding: 0 var(--space-md);
+    height: 56px;
+  }
+  
+  .header__center {
+    display: none;
+  }
+  
+  .header__lesson {
+    display: none;
+  }
+}

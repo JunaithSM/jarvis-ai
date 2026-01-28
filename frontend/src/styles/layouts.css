@@ -1,0 +1,70 @@
+/* Calm Focus - App Layout Overrides */
+
+.app-container {
+  /* Reset previous scanlines */
+  background-size: cover; 
+  padding-top: 100px; /* Space for floating header */
+}
+
+/* Floating Islands Layout */
+.panels-container {
+  display: flex;
+  gap: var(--space-lg);
+  padding: 0 var(--space-lg) var(--space-lg);
+  height: calc(100vh - 100px);
+}
+
+.panel {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  /* Soft shadow for depth */
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.4s var(--ease-calm);
+}
+
+.panel--code {
+  flex: 6;
+  background: var(--color-slate-800); /* Darker for code */
+}
+
+.panel--mentor {
+  flex: 4;
+  background: rgba(42, 45, 54, 0.4); /* Glassy for chat */
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-soft);
+}
+
+/* Remove Resize Handle visual - functionality remains but hidden */
+.resize-handle {
+  width: var(--space-lg);
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+}
+
+/* Add subtle dots to indicate resize */
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 4px;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  box-shadow: 0 -8px 0 var(--text-secondary), 0 8px 0 var(--text-secondary);
+  opacity: 0.3;
+}
+
+@media (max-width: 1024px) {
+  .panels-container {
+    flex-direction: column;
+    height: auto;
+    padding-bottom: 80px; /* Space for nav */
+  }
+
+  .panel {
+    min-height: 50vh;
+  }
+}
