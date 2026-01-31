@@ -15,9 +15,14 @@ const CodeEditor = ({ themeMode, onRunResult }) => {
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
 
-  // Generate a simple session ID (in production, use a proper UUID library)
-  const generateSessionId = () => {
-    return 'session_' + Math.random().toString(36).substring(2, 15);
+  // Get or generate session ID from sessionStorage
+  const getSessionId = () => {
+    let sessionId = sessionStorage.getItem('jarvis_session_id');
+    if (!sessionId) {
+      sessionId = 'session_' + Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('jarvis_session_id', sessionId);
+    }
+    return sessionId;
   };
 
   // Language Extensions Map
@@ -40,7 +45,7 @@ const CodeEditor = ({ themeMode, onRunResult }) => {
     if (isRunning) return;
 
     setIsRunning(true);
-    const sessionId = generateSessionId();
+    const sessionId = getSessionId();
 
     try {
       const result = await runCode(sessionId, language, code);
