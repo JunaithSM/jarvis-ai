@@ -1,19 +1,63 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TerminalSquare, RotateCcw } from 'lucide-react';
 
-const TerminalPanel = () => {
+const TerminalPanel = ({ runOutput }) => {
   const [history, setHistory] = useState([
-    { type: 'info', content: 'FocusFlow Terminal v1.0.0' },
+    { type: 'info', content: 'Jarvis Terminal v1.0.0' },
     { type: 'success', content: 'Environment initialized successfully.' },
     { type: 'info', content: 'Type "help" for available commands.' }
   ]);
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
+  const lastProcessedRef = useRef(null);
 
   // Auto-scroll to bottom on new message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [history]);
+
+  // Handle incoming run output from CodeEditor
+  useEffect(() => {
+    if (runOutput && runOutput !== lastProcessedRef.current) {
+      lastProcessedRef.current = runOutput;
+      
+      const entries = [];
+      
+      // Add execution header
+      entries.push({ type: 'command', content: '> Running code...' });
+      
+      // Add stdout if present
+      if (runOutput.stdout) {
+        entries.push({ type: 'output', content: runOutput.stdout });
+      }
+      
+      // Add stderr if present
+      if (runOutput.stderr) {
+        entries.push({ type: 'error', content: runOutput.stderr });
+      }
+      
+      // Add status message
+      if (runOutput.status === 'success') {
+        entries.push({ 
+          type: 'success', 
+          content: `✓ Program executed successfully${runOutput.time_ms ? ` (${runOutput.time_ms}ms)` : ''}` 
+        });
+      } else if (runOutput.status === 'compile_error') {
+        entries.push({ type: 'error', content: '✗ Compilation failed' });
+      } else if (runOutput.status === 'runtime_error') {
+        entries.push({ 
+          type: 'error', 
+          content: `✗ Runtime error (exit code: ${runOutput.exit_code})` 
+        });
+      } else if (runOutput.status === 'error') {
+        entries.push({ type: 'error', content: '✗ Execution failed' });
+      } else if (runOutput.status?.includes('timeout')) {
+        entries.push({ type: 'error', content: '✗ Execution timed out' });
+      }
+      
+      setHistory(prev => [...prev, ...entries]);
+    }
+  }, [runOutput]);
 
   const handleCommand = (e) => {
     if (e.key === 'Enter') {
@@ -47,10 +91,7 @@ const TerminalPanel = () => {
       case 'gcc':
       case 'python':
         response.type = 'info';
-        response.content = 'Compiling and executing source... [Mock Output]';
-        setTimeout(() => {
-           setHistory(prev => [...prev, { type: 'success', content: 'Program executed successfully (Exit Code 0)' }]);
-        }, 800);
+        response.content = 'Use the RUN button in the editor to execute code.';
         break;
       default:
         response.type = 'error';
