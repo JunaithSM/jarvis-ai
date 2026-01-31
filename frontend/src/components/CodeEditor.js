@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
 import { cpp } from '@codemirror/lang-cpp';
 import { oneDark } from '@codemirror/theme-one-dark';
 
-import { ChevronDown, Play, Code2 } from 'lucide-react';
+import { ChevronDown, Play, Code2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { runCode } from '../services/api';
 
-const CodeEditor = ({ themeMode }) => {
+const CodeEditor = ({ themeMode, onRunResult }) => {
   const [code, setCode] = useState("// Start coding here...\nconsole.log('Hello World');");
   const [language, setLanguage] = useState('javascript');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+
+  // Generate a simple session ID (in production, use a proper UUID library)
+  const generateSessionId = () => {
+    return 'session_' + Math.random().toString(36).substring(2, 15);
+  };
 
   // Language Extensions Map
   const getLanguageExtension = (lang) => {
@@ -26,6 +33,34 @@ const CodeEditor = ({ themeMode }) => {
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
     setIsLangMenuOpen(false);
+  };
+
+  // Handle code execution
+  const handleRunCode = async () => {
+    if (isRunning) return;
+
+    setIsRunning(true);
+    const sessionId = generateSessionId();
+
+    try {
+      const result = await runCode(sessionId, language, code);
+      
+      // Pass result to parent component if callback provided
+      if (onRunResult) {
+        onRunResult(result);
+      }
+    } catch (error) {
+      console.error('Error running code:', error);
+      if (onRunResult) {
+        onRunResult({
+          status: 'error',
+          stdout: '',
+          stderr: error.message || 'An unexpected error occurred',
+        });
+      }
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   return (
@@ -76,9 +111,23 @@ const CodeEditor = ({ themeMode }) => {
           </div>
 
           {/* Run Button (Desktop) */}
-          <button className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all active:scale-95">
-             <Play size={12} fill="currentColor" />
-             <span>RUN</span>
+          <button 
+            type="button"
+            onClick={handleRunCode}
+            disabled={isRunning}
+            className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed text-white text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+          >
+            {isRunning ? (
+              <>
+                <Loader2 size={12} className="animate-spin" />
+                <span>Running...</span>
+              </>
+            ) : (
+              <>
+                <Play size={12} fill="currentColor" />
+                <span>RUN</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -127,4 +176,5 @@ const CodeEditor = ({ themeMode }) => {
   );
 };
 
-export default CodeEditor;
+export default memo(CodeEditor);
+
