@@ -20,10 +20,10 @@ def run_code(sessionId: str, payload: RunRequest):
         raise HTTPException(status_code=400, detail="sessionId missing")
 
     result = compile_and_run(
+        session_id=sessionId,
         language=payload.language,
         code=payload.code,
         stdin=payload.stdin or ""
     )
 
-    result["sessionId"] = sessionId
     return result

@@ -1,21 +1,19 @@
 import os
 import subprocess
 import time
-import uuid
 from typing import Dict
 
 
 SUPPORTED_LANGS = {"python", "c", "cpp", "java"}
 
 
-def make_run_folder(base_dir: str = "runs") -> str:
-    run_id = str(uuid.uuid4())[:8]
-    folder = os.path.join(base_dir, run_id)
+def make_run_folder(session_id:str,base_dir: str = "runs") -> str:
+    folder = os.path.join(base_dir, session_id)
     os.makedirs(folder, exist_ok=True)
     return folder
 
 
-def write_code_to_file(folder: str, language: str, code: str) -> str:
+def get_filename(language: str) -> str:
     if language == "python":
         filename = "main.py"
     elif language == "c":
@@ -26,10 +24,6 @@ def write_code_to_file(folder: str, language: str, code: str) -> str:
         filename = "Main.java"
     else:
         raise ValueError("Unsupported language")
-
-    file_path = os.path.join(folder, filename)
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(code)
 
     return filename
 
@@ -57,6 +51,7 @@ def get_commands(language: str, filename: str):
 
 
 def compile_and_run(
+    session_id: str,
     language: str,
     code: str,
     stdin: str = "",
@@ -73,15 +68,20 @@ def compile_and_run(
             "stderr": f"Unsupported language: {language}",
         }
 
-    folder = make_run_folder(base_dir=base_dir)
+    folder = make_run_folder(session_id,base_dir=base_dir)
 
     try:
-        filename = write_code_to_file(folder, language, code)
+        filename =get_filename(language)
+        file_path= os.path.join(folder,filename)
+
+        with open(file_path, "w",encoding="utf-8") as f:
+            f.write(code)
     except Exception as e:
         return {
             "status": "error",
             "stdout": "",
             "stderr": f"Failed to write code file: {e}",
+            "sessionId": session_id
         }
 
     compile_cmd, run_cmd = get_commands(language, filename)
@@ -102,7 +102,7 @@ def compile_and_run(
                     "status": "compile_error",
                     "stdout": comp.stdout or "",
                     "stderr": comp.stderr or "",
-                    "workspace": folder,
+                    "sessionId":session_id
                 }
 
         except subprocess.TimeoutExpired:
@@ -110,7 +110,8 @@ def compile_and_run(
                 "status": "compile_timeout",
                 "stdout": "",
                 "stderr": "Compilation timed out",
-                "workspace": folder,
+                "sessionId":session_id
+                
             }
 
     # Run
@@ -134,7 +135,7 @@ def compile_and_run(
             "stderr": run.stderr or "",
             "exit_code": run.returncode,
             "time_ms": int((end - start) * 1000),
-            "workspace": folder,
+            "sessionId":session_id
         }
 
     except subprocess.TimeoutExpired:
@@ -142,5 +143,5 @@ def compile_and_run(
             "status": "runtime_timeout",
             "stdout": "",
             "stderr": "Program timed out",
-            "workspace": folder,
+            "sessionId":session_id
         }
