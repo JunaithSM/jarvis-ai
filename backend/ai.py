@@ -1,6 +1,17 @@
 from groq import Groq
 import json
 
+# =========================
+# CLIENT
+# =========================
+
+client = Groq(Groq_api_key="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")  # uses GROQ_API_KEY from environment
+
+
+# =========================
+# SCHEMA (SYNTAX EXPERIMENT)
+# =========================
+
 EXPECTED_SYNTAX_EXPERIMENT = {
     "type": "syntax_experiment",
     "language": "python",
@@ -19,23 +30,14 @@ EXPECTED_SYNTAX_EXPERIMENT = {
     }
 }
 
-schema_reference = json.dumps(EXPECTED_SYNTAX_EXPERIMENT, indent=2)
+SCHEMA_REFERENCE = json.dumps(EXPECTED_SYNTAX_EXPERIMENT, indent=2)
 
 
-with open("backend/trial.json", "r") as f:
-    sample_dict = json.load(f)
+# =========================
+# SYSTEM PROMPTS
+# =========================
 
-
-client = Groq()  # uses GROQ_API_KEY from environment
-
-
-def ai_assistant(dict_input):
-    response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=[
-            {
-                "role": "system",
-                "content": f"""
+SYNTAX_SYSTEM_PROMPT = f"""
 You are an educational coding assistant.
 
 STRICT OUTPUT CONTRACT (NON-NEGOTIABLE):
@@ -43,40 +45,83 @@ STRICT OUTPUT CONTRACT (NON-NEGOTIABLE):
 - The top-level object MUST be a syntax_experiment.
 - DO NOT include hints, explanations, notes, or suggestions.
 - DO NOT fix or reference the user's code.
-- DO NOT suggest edits or replacements.
 - DO NOT include free-form text.
 
 SYNTAX EXPERIMENT RULES:
 - Demonstrate correct Python for-loop syntax.
-- Use a generic example (not user code).
+- Use a generic example (not the user code).
 - Use code_template with {{placeholders}}.
-- The ONLY editable placeholders are:
+- Editable placeholders:
   - loop variable
   - range limit
 - DO NOT allow editing of the loop body.
 
 REFERENCE SCHEMA (copy structure, change values only):
-{schema_reference}
-
-If you include corrected code, final code, or runnable code, your response is INVALID.
+{SCHEMA_REFERENCE}
 """
+
+
+SOCRATIC_SYSTEM_PROMPT = """
+You are a Socratic coding tutor.
+
+RULES:
+- DO NOT write code.
+- DO NOT show syntax.
+- DO NOT give direct answers.
+- ONLY ask guiding questions or give thinking hints.
+- Focus on reasoning, boundaries, and conditions.
+- Keep hints short and clear.
+"""
+
+
+# =========================
+# AI FUNCTIONS
+# =========================
+
+def syntax_experiment_assistant(user_code: str):
+    """
+    Returns STRICT syntax_experiment JSON.
+    """
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "system",
+                "content": SYNTAX_SYSTEM_PROMPT
             },
             {
                 "role": "user",
                 "content": f"""
 Language: Python
-Error type: for_loop_syntax
 User code:
-{dict_input}
+{user_code}
 """
             }
         ]
     )
 
-    output = response.choices[0].message.content
-
-    print("\nGenerated Post:\n")
-    print(output)
+    return response.choices[0].message.content
 
 
-ai_assistant(sample_dict)
+def socratic_hint_assistant(user_question: str):
+    """
+    Returns logical Socratic hints only.
+    """
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "system",
+                "content": SOCRATIC_SYSTEM_PROMPT
+            },
+            {
+                "role": "user",
+                "content": user_question
+            }
+        ]
+    )
+
+    return {
+        "type": "socratic_hint",
+        "response": response.choices[0].message.content
+    }
