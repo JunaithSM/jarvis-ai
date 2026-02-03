@@ -4,7 +4,7 @@ import time
 from typing import Dict
 
 
-SUPPORTED_LANGS = {"python", "c", "cpp", "java"}
+SUPPORTED_LANGS = {"python", "c", "cpp", "java","javascript"}
 
 
 def make_run_folder(session_id:str,base_dir: str = "runs") -> str:
@@ -22,6 +22,8 @@ def get_filename(language: str) -> str:
         filename = "main.cpp"
     elif language == "java":
         filename = "Main.java"
+    elif language == "javascript":
+        filename = "main.js"
     else:
         raise ValueError("Unsupported language")
 
@@ -46,6 +48,10 @@ def get_commands(language: str, filename: str):
     elif language == "java":
         compile_cmd = ["javac", filename]
         run_cmd = ["java", "Main"]
+
+    elif language == "javascript":
+        run_cmd = ["node", filename]
+
 
     return compile_cmd, run_cmd
 
@@ -145,3 +151,4 @@ def compile_and_run(
             "stderr": "Program timed out",
             "sessionId":session_id
         }
+
