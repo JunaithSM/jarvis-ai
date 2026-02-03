@@ -1,11 +1,24 @@
 from groq import Groq
 import json
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # =========================
 # CLIENT
 # =========================
 
-client = Groq(Groq_api_key="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")  # uses GROQ_API_KEY from environment
+import os
+
+if not os.getenv("GROQ_API_KEY"):
+    raise RuntimeError(
+        "GROQ_API_KEY is not set. Create a .env file or set environment variables."
+    )
+
+api_key = os.getenv("GROQ_API_KEY")
+
+client = Groq(api_key=api_key)
+
 
 
 # =========================
