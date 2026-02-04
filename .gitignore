@@ -24,4 +24,5 @@ yarn-error.log*
 # Temp
 tmp/
 
-runs/
+runs/.python-version
+backend/syntax_template/

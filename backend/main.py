@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.routes.routes_run import router as run_router
+from backend.src.routes.routes_run import router as run_router
+from backend.src.routes.ai import router as ai_router
 
 app = FastAPI(title="jarvis_AI Coding Platform Backend")
 
@@ -19,6 +20,7 @@ def home():
 
 # include router
 app.include_router(run_router)
+app.include_router(ai_router)
 
 if __name__ == "__main__":
     import uvicorn
