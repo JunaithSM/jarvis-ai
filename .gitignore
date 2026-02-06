@@ -23,6 +23,6 @@ yarn-error.log*
 
 # Temp
 tmp/
-
+backend/runs/
 runs/.python-version
 backend/syntax_template/

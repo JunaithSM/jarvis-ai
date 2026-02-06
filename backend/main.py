@@ -4,7 +4,6 @@ from backend.src.routes.ai import router as ai_router
 from src.routes.routes_interactive import router as interactive_router
 from src.execution_engine.ws import interactive_ws
 
-
 app = FastAPI(title="jarvis_AI Coding Platform Backend")
 
 # CORS middleware - allow frontend to make requests

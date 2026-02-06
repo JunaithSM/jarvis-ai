@@ -1,6 +1,6 @@
 from groq import Groq
-from backend.src.config.env import GROQ_API_KEY
-from backend.src.prompts.logical_prompt import SOCRATIC_SYSTEM_PROMPT
+from src.config.env import GROQ_API_KEY
+from src.prompts.logical_prompt import SOCRATIC_SYSTEM_PROMPT
 
 
 # =========================
