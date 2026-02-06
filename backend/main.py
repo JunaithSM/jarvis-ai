@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.src.routes.routes_run import router as run_router
 from backend.src.routes.ai import router as ai_router
+from src.routes.routes_interactive import router as interactive_router
+from src.execution_engine.ws import interactive_ws
+
 
 app = FastAPI(title="jarvis_AI Coding Platform Backend")
 
@@ -18,8 +20,12 @@ app.add_middleware(
 def home():
     return {"message": "Backend running ✅"}
 
+@app.websocket("/ws/interactive/{run_id}")
+async def ws_term(ws, run_id):
+    await interactive_ws(ws, run_id)
+
 # include router
-app.include_router(run_router)
+app.include_router(interactive_router)
 app.include_router(ai_router)
 
 if __name__ == "__main__":
