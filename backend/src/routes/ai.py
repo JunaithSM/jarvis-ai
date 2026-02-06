@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from backend.src.services.ai import socratic_hint_assistant
+from src.services.ai import socratic_hint_assistant
 
 router = APIRouter()
 

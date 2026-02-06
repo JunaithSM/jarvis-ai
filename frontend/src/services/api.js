@@ -51,4 +51,28 @@ export const runCode = async (sessionId, language, code, stdin = '') => {
   }
 };
 
+/**
+ * Get a Socratic hint from the AI
+ * @param {string} question - Student's question
+ * @param {string} code - Student's current code
+ * @returns {Promise<Object>} - The AI's response { type, hint }
+ */
+export const getSocraticHint = async (question, code) => {
+  try {
+    const response = await api.post('/ai/socratic-hint', {
+      question,
+      code,
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+       throw new Error(error.response.data?.detail || 'Server error occurred');
+    } else if (error.request) {
+       throw new Error('Unable to connect to backend server. Make sure it is running.');
+    } else {
+       throw new Error(error.message);
+    }
+  }
+};
+
 export default api;

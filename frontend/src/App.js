@@ -21,6 +21,10 @@ function App() {
   const [isPopEditorOpen, setIsPopEditorOpen] = useState(false);
   const [popTemplate] = useState("for [i] in range([10]):\n    [print](i)");
 
+  // Shared Code State
+  const [code, setCode] = useState("# Start coding here...\nprint('Hello World')");
+  const [language, setLanguage] = useState('python');
+
   // Code execution output state (passed to TerminalPanel)
   const [runOutput, setRunOutput] = useState(null);
   
@@ -89,7 +93,16 @@ function App() {
             <AnimatePresence mode="wait">
               {activeTab === 'editor' && (
                 <motion.div key="editor" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
-                  <CodeEditor themeMode={theme} onRunResult={handleRunResult} />
+                <motion.div key="editor" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
+                  <CodeEditor 
+                    themeMode={theme} 
+                    onRunResult={handleRunResult} 
+                    code={code}
+                    onCodeChange={setCode}
+                    language={language}
+                    onLanguageChange={setLanguage}
+                  />
+                </motion.div>
                 </motion.div>
               )}
               {activeTab === 'terminal' && (
@@ -99,7 +112,9 @@ function App() {
               )}
               {activeTab === 'chat' && (
                 <motion.div key="chat" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
-                  <AIMentorPanel />
+                <motion.div key="chat" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
+                  <AIMentorPanel code={code} />
+                </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -182,7 +197,17 @@ function App() {
                 <PanelGroup direction="vertical" className="h-full w-full">
                   {/* Top: Code Editor */}
                   <Panel defaultSize={70} minSize={20} className="bg-stone-100 dark:bg-slate-900/30 flex flex-col transition-colors">
-                    <CodeEditor themeMode={theme} onRunResult={handleRunResult} />
+                  {/* Top: Code Editor */}
+                  <Panel defaultSize={70} minSize={20} className="bg-stone-100 dark:bg-slate-900/30 flex flex-col transition-colors">
+                    <CodeEditor 
+                      themeMode={theme} 
+                      onRunResult={handleRunResult}
+                      code={code}
+                      onCodeChange={setCode}
+                      language={language}
+                      onLanguageChange={setLanguage}
+                    />
+                  </Panel>
                   </Panel>
                   
                   <PanelResizeHandle className="h-[2px] bg-stone-200 dark:bg-slate-800 hover:bg-indigo-500 transition-colors" />
@@ -198,7 +223,10 @@ function App() {
 
               {/* RIGHT SIDE: AI Mentor */}
               <Panel defaultSize={40} minSize={20} className="bg-white dark:bg-slate-900 border-l border-stone-200 dark:border-slate-800 transition-colors">
-                <AIMentorPanel />
+              {/* RIGHT SIDE: AI Mentor */}
+              <Panel defaultSize={40} minSize={20} className="bg-white dark:bg-slate-900 border-l border-stone-200 dark:border-slate-800 transition-colors">
+                <AIMentorPanel code={code} />
+              </Panel>
               </Panel>
 
             </PanelGroup>

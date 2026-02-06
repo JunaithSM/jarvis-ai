@@ -1,18 +1,12 @@
 import React, { useState, memo } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
 import { python } from '@codemirror/lang-python';
-import { cpp } from '@codemirror/lang-cpp';
 import { oneDark } from '@codemirror/theme-one-dark';
 
-import { ChevronDown, Play, Code2, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Code2, Loader2 } from 'lucide-react';
 import { runCode } from '../services/api';
 
-const CodeEditor = ({ themeMode, onRunResult }) => {
-  const [code, setCode] = useState("// Start coding here...\nconsole.log('Hello World');");
-  const [language, setLanguage] = useState('javascript');
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+const CodeEditor = ({ themeMode, onRunResult, code, onCodeChange }) => {
   const [isRunning, setIsRunning] = useState(false);
 
   // Get or generate session ID from sessionStorage
@@ -25,21 +19,6 @@ const CodeEditor = ({ themeMode, onRunResult }) => {
     return sessionId;
   };
 
-  // Language Extensions Map
-  const getLanguageExtension = (lang) => {
-    switch(lang) {
-      case 'python': return python();
-      case 'c': 
-      case 'cpp': return cpp();
-      default: return javascript({ jsx: true });
-    }
-  };
-
-  const handleLanguageChange = (lang) => {
-    setLanguage(lang);
-    setIsLangMenuOpen(false);
-  };
-
   // Handle code execution
   const handleRunCode = async () => {
     if (isRunning) return;
@@ -48,7 +27,7 @@ const CodeEditor = ({ themeMode, onRunResult }) => {
     const sessionId = getSessionId();
 
     try {
-      const result = await runCode(sessionId, language, code);
+      const result = await runCode(sessionId, 'python', code);
       
       // Pass result to parent component if callback provided
       if (onRunResult) {
@@ -83,36 +62,9 @@ const CodeEditor = ({ themeMode, onRunResult }) => {
         {/* Right: Controls */}
         <div className="flex items-center gap-2">
           
-          {/* Language Selector */}
-          <div className="relative z-20">
-            <button 
-              onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-stone-200 dark:bg-slate-800 hover:bg-stone-300 dark:hover:bg-slate-700 text-xs font-medium text-stone-600 dark:text-slate-300 transition-colors border border-stone-300/50 dark:border-slate-700/50"
-            >
-              <span className="capitalize">{language === 'cpp' ? 'C++' : language}</span>
-              <ChevronDown size={12} className={`transition-transform duration-200 ${isLangMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-              {isLangMenuOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 5 }}
-                  className="absolute right-0 top-full mt-1 w-32 bg-white dark:bg-slate-800 border border-stone-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden py-1"
-                >
-                  {['javascript', 'python', 'cpp', 'c'].map((lang) => (
-                    <button
-                      key={lang}
-                      onClick={() => handleLanguageChange(lang)}
-                      className="w-full text-left px-3 py-2 text-xs text-stone-600 dark:text-slate-300 hover:bg-stone-100 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-white transition-colors capitalize"
-                    >
-                      {lang === 'cpp' ? 'C++' : lang}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* Python Language Badge */}
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-stone-200 dark:bg-slate-800 text-xs font-medium text-stone-600 dark:text-slate-300 border border-stone-300/50 dark:border-slate-700/50">
+            <span>Python</span>
           </div>
 
           {/* Run Button (Desktop) */}
@@ -143,8 +95,8 @@ const CodeEditor = ({ themeMode, onRunResult }) => {
           value={code}
           height="100%"
           theme={themeMode === 'dark' ? oneDark : 'light'}
-          extensions={[getLanguageExtension(language)]}
-          onChange={(val) => setCode(val)}
+          extensions={[python()]}
+          onChange={(val) => onCodeChange(val)}
           className="h-full text-sm font-mono focus:outline-none"
           basicSetup={{
             lineNumbers: true,
