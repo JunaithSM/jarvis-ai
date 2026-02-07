@@ -4,7 +4,7 @@ import asyncio
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from backend.src.execution_engine.store import RUNNING, LOCK
+from src.execution_engine.store import RUNNING, LOCK
 
 router = APIRouter(prefix="/interactive", tags=["Interactive Python"])
 
@@ -27,7 +27,7 @@ async def start_interactive(sessionId: str, payload: StartReq):
     run_id = str(uuid.uuid4())[:8]
 
     proc = await asyncio.create_subprocess_exec(
-        "python3", "main.py",
+        "python3", "-u", "main.py",
         cwd=folder,
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,

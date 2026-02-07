@@ -1,6 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from backend.src.routes.ai import router as ai_router
+from src.routes.ai import router as ai_router
 from src.routes.routes_interactive import router as interactive_router
 from src.execution_engine.ws import interactive_ws
 
@@ -9,7 +9,7 @@ app = FastAPI(title="jarvis_AI Coding Platform Backend")
 # CORS middleware - allow frontend to make requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000","http://localhost:8000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,7 +20,7 @@ def home():
     return {"message": "Backend running ✅"}
 
 @app.websocket("/ws/interactive/{run_id}")
-async def ws_term(ws, run_id):
+async def ws_term(ws: WebSocket, run_id: str):
     await interactive_ws(ws, run_id)
 
 # include router
