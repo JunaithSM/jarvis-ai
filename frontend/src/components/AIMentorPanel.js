@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Send, Lock, Unlock, Sparkles, AlertCircle, ArrowDown, Bot, User, Zap } from 'lucide-react';
+import { Send, AlertCircle, ArrowDown, Bot, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSocraticHint } from '../services/api';
 
@@ -23,12 +23,7 @@ const AIMentorPanel = ({ code }) => {
   const textareaRef = useRef(null);
   const isAutoScrolling = useRef(false);
 
-  // Progressive Hints State
-  const [hints, setHints] = useState([
-    { id: 1, title: 'Logic Hint', content: "Consider iterating through the array once. Keeping track of the current maximum value found so far is efficient.", locked: true },
-    { id: 2, title: 'Code Structure', content: "Use a simple `for` loop starting from index 1 (since 0 is the initial max).", locked: true },
-    { id: 3, title: 'Complexity Insight', content: "This approach results in **O(n)** time complexity because we visit every element exactly once.", locked: true }
-  ]);
+
 
   // --- Smart Scrolling Logic ---
 
@@ -127,9 +122,7 @@ const AIMentorPanel = ({ code }) => {
     }
   };
 
-  const unlockHint = (id) => {
-    setHints(prev => prev.map(h => h.id === id ? { ...h, locked: false } : h));
-  };
+
 
   return (
     <div className="h-[calc(100vh-64px)] max-h-[calc(100vh-64px)] w-full flex relative flex-col bg-slate-50 dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 overflow-hidden">
