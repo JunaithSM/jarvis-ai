@@ -232,57 +232,6 @@ const AIMentorPanel = ({ code }) => {
         )}
       </AnimatePresence>
 
-      {/* Strategic Hints - Fixed at bottom */}
-      <div className="shrink-0 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
-        <div className="p-3 space-y-2">
-           <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2">
-                  <Zap size={14} className="text-amber-500 fill-amber-500" />
-                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Strategic Hints</span>
-              </div>
-              <span className="text-[10px] font-mono bg-slate-200 dark:bg-slate-800 px-2.5 py-1 rounded-full text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-700">
-                  {hints.filter(h => !h.locked).length} / {hints.length} UNLOCKED
-              </span>
-           </div>
-           
-           <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar snap-x">
-             {hints.map((hint) => (
-               <div 
-                 key={hint.id}
-                 className={`shrink-0 w-56 text-xs p-3 rounded-xl border transition-all duration-300 snap-center flex flex-col gap-1.5 ${
-                   hint.locked 
-                     ? 'bg-slate-100 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer group' 
-                     : 'bg-emerald-50/50 dark:bg-emerald-500/5 border-emerald-100 dark:border-emerald-500/20 shadow-sm'
-                 }`}
-                 onClick={() => hint.locked && unlockHint(hint.id)}
-               >
-                 <div className="flex items-center justify-between">
-                    <span className={`font-bold tracking-tight ${hint.locked ? 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200' : 'text-emerald-700 dark:text-emerald-400'}`}>
-                      {hint.title}
-                    </span>
-                    {hint.locked 
-                        ? <Lock size={12} className="text-slate-400 group-hover:text-indigo-500 transition-colors" /> 
-                        : <Unlock size={12} className="text-emerald-500" />
-                    }
-                 </div>
-                 
-                 <div className="min-h-[32px] flex items-center">
-                    {!hint.locked ? (
-                       <ReactMarkdown className="prose prose-xs dark:prose-invert leading-relaxed text-slate-600 dark:text-slate-300 w-full">
-                           {hint.content}
-                       </ReactMarkdown>
-                    ) : (
-                       <p className="text-slate-400 dark:text-slate-600 italic flex items-center gap-1.5 w-full justify-center opacity-80 text-[11px]">
-                           <Sparkles size={10} /> Tap to decrypt
-                       </p>
-                    )}
-                 </div>
-               </div>
-             ))}
-           </div>
-        </div>
-      </div>
-
       {/* Input Area - Fixed at bottom */}
       <div className="shrink-0 w-[100%] p-4 pt-2 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
         <label className="relative flex items-end gap-2 bg-slate-50 dark:bg-slate-900 rounded-2xl p-2 border border-slate-200 dark:border-slate-800 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 dark:focus-within:ring-indigo-500/20 transition-all shadow-sm">

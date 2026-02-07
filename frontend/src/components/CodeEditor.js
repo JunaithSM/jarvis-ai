@@ -4,46 +4,14 @@ import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
 
 import { Play, Code2, Loader2 } from 'lucide-react';
-import { runCode } from '../services/api';
 
-const CodeEditor = ({ themeMode, onRunResult, code, onCodeChange }) => {
-  const [isRunning, setIsRunning] = useState(false);
 
-  // Get or generate session ID from sessionStorage
-  const getSessionId = () => {
-    let sessionId = sessionStorage.getItem('jarvis_session_id');
-    if (!sessionId) {
-      sessionId = 'session_' + Math.random().toString(36).substring(2, 15);
-      sessionStorage.setItem('jarvis_session_id', sessionId);
-    }
-    return sessionId;
-  };
+const CodeEditor = ({ themeMode, code, onCodeChange, language, isProcessing, onRunRequest }) => {
 
   // Handle code execution
-  const handleRunCode = async () => {
-    if (isRunning) return;
-
-    setIsRunning(true);
-    const sessionId = getSessionId();
-
-    try {
-      const result = await runCode(sessionId, 'python', code);
-      
-      // Pass result to parent component if callback provided
-      if (onRunResult) {
-        onRunResult(result);
-      }
-    } catch (error) {
-      console.error('Error running code:', error);
-      if (onRunResult) {
-        onRunResult({
-          status: 'error',
-          stdout: '',
-          stderr: error.message || 'An unexpected error occurred',
-        });
-      }
-    } finally {
-      setIsRunning(false);
+  const handleRunCode = () => {
+    if (onRunRequest) {
+      onRunRequest(code, language);
     }
   };
 
@@ -71,10 +39,10 @@ const CodeEditor = ({ themeMode, onRunResult, code, onCodeChange }) => {
           <button 
             type="button"
             onClick={handleRunCode}
-            disabled={isRunning}
+            disabled={isProcessing}
             className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed text-white text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
           >
-            {isRunning ? (
+            {isProcessing ? (
               <>
                 <Loader2 size={12} className="animate-spin" />
                 <span>Running...</span>
@@ -111,7 +79,7 @@ const CodeEditor = ({ themeMode, onRunResult, code, onCodeChange }) => {
             syntaxHighlighting: true,
             bracketMatching: true,
             closeBrackets: true,
-            autocompletion: true,
+            autocompletion: false,
             rectangularSelection: true,
             crosshairCursor: true,
             highlightActiveLine: true,
