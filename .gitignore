@@ -26,3 +26,6 @@ tmp/
 backend/runs/
 runs/.python-version
 backend/syntax_template/
+
+# Python version files (pyenv / uv)
+.python-version

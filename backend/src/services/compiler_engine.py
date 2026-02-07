@@ -35,7 +35,7 @@ def get_commands(language: str, filename: str):
     run_cmd = None
 
     if language == "python":
-        run_cmd = ["python3", filename]
+        run_cmd = ["python", filename]
 
     elif language == "c":
         compile_cmd = ["gcc", filename, "-o", "main"]
