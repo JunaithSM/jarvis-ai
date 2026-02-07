@@ -13,6 +13,9 @@ import GuidedPopEditor from './components/GuidedPopEditor';
 // Styles
 import './index.css';
 
+
+import { runCode } from './services/api';
+
 function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState('editor');
@@ -27,6 +30,9 @@ function App() {
 
   // Code execution output state (passed to TerminalPanel)
   const [runOutput, setRunOutput] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [inputRequest, setInputRequest] = useState(null);
+  const [pendingRun, setPendingRun] = useState(null);
   
   // Memoized callback to prevent re-renders
   const handleRunResult = useCallback((result) => {
@@ -57,6 +63,77 @@ function App() {
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
+
+  const getSessionId = () => {
+    let sessionId = sessionStorage.getItem('jarvis_session_id');
+    if (!sessionId) {
+      sessionId = 'session_' + Math.random().toString(36).substring(2, 15);
+      sessionStorage.setItem('jarvis_session_id', sessionId);
+    }
+    return sessionId;
+  };
+
+  const handleRunRequest = async (sourceCode, lang) => {
+    if (isRunning) return;
+
+    // Check for input() calls in Python
+    if (lang === 'python') {
+      const inputRegex = /input\s*\((.*?)\)/g;
+      const matches = [...sourceCode.matchAll(inputRegex)];
+      
+      if (matches.length > 0) {
+        // Found input() calls - ask Terminal to collect them
+        const prompts = matches.map(m => {
+          const raw = m[1];
+          // Simple cleanup of quotes
+          return raw.replace(/^["']|["']$/g, ''); 
+        });
+
+        setInputRequest({ prompts });
+        setPendingRun({ code: sourceCode, language: lang }); // Store for after input
+        
+        // Switch to terminal view on mobile
+        if (isMobile) {
+          setActiveTab('terminal');
+        }
+        return;
+      }
+    }
+
+    // No inputs needed, run immediately
+    await executeCode(sourceCode, lang, '');
+  };
+
+  const handleInputComplete = async (stdin) => {
+    if (!pendingRun) return;
+    
+    const { code, language } = pendingRun;
+    setInputRequest(null); // Clear request
+    setPendingRun(null);
+    
+    await executeCode(code, language, stdin);
+  };
+
+  const executeCode = async (sourceCode, lang, stdin) => {
+    setIsRunning(true);
+    const sessionId = getSessionId();
+
+    try {
+      const result = await runCode(sessionId, lang, sourceCode, stdin);
+      handleRunResult(result);
+    } catch (error) {
+      console.error('Error running code:', error);
+      handleRunResult({
+        status: 'error',
+        stdout: '',
+        stderr: error.message || 'An unexpected error occurred',
+      });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+
 
   // Detect screen size
   useEffect(() => {
@@ -93,28 +170,29 @@ function App() {
             <AnimatePresence mode="wait">
               {activeTab === 'editor' && (
                 <motion.div key="editor" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
-                <motion.div key="editor" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
                   <CodeEditor 
                     themeMode={theme} 
-                    onRunResult={handleRunResult} 
                     code={code}
                     onCodeChange={setCode}
                     language={language}
                     onLanguageChange={setLanguage}
+                    isProcessing={isRunning}
+                    onRunRequest={handleRunRequest}
                   />
-                </motion.div>
                 </motion.div>
               )}
               {activeTab === 'terminal' && (
                 <motion.div key="terminal" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
-                  <TerminalPanel runOutput={runOutput} />
+                  <TerminalPanel 
+                    runOutput={runOutput} 
+                    inputRequest={inputRequest}
+                    onInputComplete={handleInputComplete}
+                  />
                 </motion.div>
               )}
               {activeTab === 'chat' && (
                 <motion.div key="chat" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
-                <motion.div key="chat" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
                   <AIMentorPanel code={code} />
-                </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -197,24 +275,26 @@ function App() {
                 <PanelGroup direction="vertical" className="h-full w-full">
                   {/* Top: Code Editor */}
                   <Panel defaultSize={70} minSize={20} className="bg-stone-100 dark:bg-slate-900/30 flex flex-col transition-colors">
-                  {/* Top: Code Editor */}
-                  <Panel defaultSize={70} minSize={20} className="bg-stone-100 dark:bg-slate-900/30 flex flex-col transition-colors">
                     <CodeEditor 
                       themeMode={theme} 
-                      onRunResult={handleRunResult}
                       code={code}
                       onCodeChange={setCode}
                       language={language}
                       onLanguageChange={setLanguage}
+                      isProcessing={isRunning}
+                      onRunRequest={handleRunRequest}
                     />
-                  </Panel>
                   </Panel>
                   
                   <PanelResizeHandle className="h-[2px] bg-stone-200 dark:bg-slate-800 hover:bg-indigo-500 transition-colors" />
                   
                   {/* Bottom: Terminal */}
                   <Panel defaultSize={30} minSize={10} className="bg-stone-900 dark:bg-black/40 border-t border-stone-200 dark:border-slate-800/50">
-                    <TerminalPanel runOutput={runOutput} />
+                    <TerminalPanel 
+                      runOutput={runOutput} 
+                      inputRequest={inputRequest}
+                      onInputComplete={handleInputComplete}
+                    />
                   </Panel>
                 </PanelGroup>
               </Panel>
@@ -223,10 +303,7 @@ function App() {
 
               {/* RIGHT SIDE: AI Mentor */}
               <Panel defaultSize={40} minSize={20} className="bg-white dark:bg-slate-900 border-l border-stone-200 dark:border-slate-800 transition-colors">
-              {/* RIGHT SIDE: AI Mentor */}
-              <Panel defaultSize={40} minSize={20} className="bg-white dark:bg-slate-900 border-l border-stone-200 dark:border-slate-800 transition-colors">
                 <AIMentorPanel code={code} />
-              </Panel>
               </Panel>
 
             </PanelGroup>
@@ -244,3 +321,4 @@ function App() {
 }
 
 export default App;
+
