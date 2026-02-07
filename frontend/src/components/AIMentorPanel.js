@@ -10,7 +10,7 @@ const AIMentorPanel = ({ code }) => {
     { 
       id: 1, 
       sender: 'ai', 
-      text: "**Jarvis AI initialized.**\n\nI am ready to assist with your algorithm analysis.\n\nType of assistance available:\n- **Logic Hints**\n- **Syntax Help**\n- **Complexity Analysis**\n\nAwaiting input...",
+      text: "**Jarvis AI initialized.**\n\nI am ready to assist with your algorithm analysis.\n\nType of assistance available:\n- **Logic Hints**\n\nAwaiting input...",
       timestamp: new Date()
     }
   ]);
