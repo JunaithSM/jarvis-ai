@@ -75,4 +75,34 @@ export const getSocraticHint = async (question, code) => {
   }
 };
 
+/**
+ * Start an interactive Python run (spawns process on backend).
+ * @param {string} sessionId
+ * @param {string} code
+ * @returns {Promise<{runId: string}>}
+ */
+export const startInteractiveRun = async (sessionId, code) => {
+  const response = await api.post(`/interactive/start/${sessionId}`, { code });
+  return response.data; // { runId }
+};
+
+/**
+ * Stop / kill a running interactive process.
+ * @param {string} runId
+ */
+export const stopInteractiveRun = async (runId) => {
+  await api.post(`/interactive/stop/${runId}`);
+};
+
+/**
+ * Build the WebSocket URL for an interactive run.
+ * @param {string} runId
+ * @returns {string}
+ */
+export const getWsUrl = (runId) => {
+  const base = (process.env.REACT_APP_BACKEND_URL || 'http://127.0.0.1:8000')
+    .replace(/^http/, 'ws');
+  return `${base}/ws/interactive/${runId}`;
+};
+
 export default api;

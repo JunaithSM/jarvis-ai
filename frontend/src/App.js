@@ -8,34 +8,23 @@ import CodeEditor from './components/CodeEditor';
 import AIMentorPanel from './components/AIMentorPanel';
 import TerminalPanel from './components/TerminalPanel';
 
-
-
 // Styles
 import './index.css';
 
-
-import { runCode } from './services/api';
+import { startInteractiveRun, stopInteractiveRun, getWsUrl } from './services/api';
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState('editor');
-  
-
 
   // Shared Code State
   const [code, setCode] = useState("# Start coding here...\nprint('Hello World')");
   const [language, setLanguage] = useState('python');
 
-  // Code execution output state (passed to TerminalPanel)
-  const [runOutput, setRunOutput] = useState(null);
+  // Interactive execution state
   const [isRunning, setIsRunning] = useState(false);
-  const [inputRequest, setInputRequest] = useState(null);
-  const [pendingRun, setPendingRun] = useState(null);
-  
-  // Memoized callback to prevent re-renders
-  const handleRunResult = useCallback((result) => {
-    setRunOutput({ ...result, _timestamp: Date.now() });
-  }, []);
+  const [wsUrl, setWsUrl] = useState(null);
+  const [currentRunId, setCurrentRunId] = useState(null);
 
   // Theme State with Persistence
   const [theme, setTheme] = useState(() => {
@@ -71,67 +60,45 @@ function App() {
     return sessionId;
   };
 
-  const handleRunRequest = async (sourceCode, lang) => {
+  // ── Run code via the interactive WebSocket flow ──
+  const handleRunRequest = useCallback(async (sourceCode, lang) => {
     if (isRunning) return;
 
-    // Check for input() calls in Python
-    if (lang === 'python') {
-      const inputRegex = /input\s*\((.*?)\)/g;
-      const matches = [...sourceCode.matchAll(inputRegex)];
-      
-      if (matches.length > 0) {
-        // Found input() calls - ask Terminal to collect them
-        const prompts = matches.map(m => {
-          const raw = m[1];
-          // Simple cleanup of quotes
-          return raw.replace(/^["']|["']$/g, ''); 
-        });
-
-        setInputRequest({ prompts });
-        setPendingRun({ code: sourceCode, language: lang }); // Store for after input
-        
-        // Switch to terminal view on mobile
-        if (isMobile) {
-          setActiveTab('terminal');
-        }
-        return;
-      }
-    }
-
-    // No inputs needed, run immediately
-    await executeCode(sourceCode, lang, '');
-  };
-
-  const handleInputComplete = async (stdin) => {
-    if (!pendingRun) return;
-    
-    const { code, language } = pendingRun;
-    setInputRequest(null); // Clear request
-    setPendingRun(null);
-    
-    await executeCode(code, language, stdin);
-  };
-
-  const executeCode = async (sourceCode, lang, stdin) => {
     setIsRunning(true);
-    const sessionId = getSessionId();
+
+    // Switch to terminal on mobile so the user sees output
+    if (isMobile) {
+      setActiveTab('terminal');
+    }
 
     try {
-      const result = await runCode(sessionId, lang, sourceCode, stdin);
-      handleRunResult(result);
-    } catch (error) {
-      console.error('Error running code:', error);
-      handleRunResult({
-        status: 'error',
-        stdout: '',
-        stderr: error.message || 'An unexpected error occurred',
-      });
-    } finally {
+      const sessionId = getSessionId();
+      const { runId } = await startInteractiveRun(sessionId, sourceCode);
+      setCurrentRunId(runId);
+      setWsUrl(getWsUrl(runId));
+    } catch (err) {
+      console.error('Failed to start interactive run:', err);
       setIsRunning(false);
     }
-  };
+  }, [isRunning, isMobile]);
 
+  // ── Stop a running process ──
+  const handleStopRun = useCallback(async () => {
+    if (currentRunId) {
+      try {
+        await stopInteractiveRun(currentRunId);
+      } catch (err) {
+        console.error('Failed to stop run:', err);
+      }
+    }
+  }, [currentRunId]);
 
+  // ── Called by TerminalPanel when the WebSocket closes (process exited) ──
+  const handleRunFinished = useCallback(() => {
+    setIsRunning(false);
+    setWsUrl(null);
+    setCurrentRunId(null);
+  }, []);
 
   // Detect screen size
   useEffect(() => {
@@ -182,9 +149,10 @@ function App() {
               {activeTab === 'terminal' && (
                 <motion.div key="terminal" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="h-full">
                   <TerminalPanel 
-                    runOutput={runOutput} 
-                    inputRequest={inputRequest}
-                    onInputComplete={handleInputComplete}
+                    wsUrl={wsUrl}
+                    isRunning={isRunning}
+                    onRunFinished={handleRunFinished}
+                    onStop={handleStopRun}
                   />
                 </motion.div>
               )}
@@ -237,8 +205,6 @@ function App() {
             </div>
             
             <div className="flex items-center gap-4">
-
-
               {/* Theme Toggle */}
               <button 
                 type="button"
@@ -282,9 +248,10 @@ function App() {
                   {/* Bottom: Terminal */}
                   <Panel defaultSize={30} minSize={10} className="bg-stone-900 dark:bg-black/40 border-t border-stone-200 dark:border-slate-800/50">
                     <TerminalPanel 
-                      runOutput={runOutput} 
-                      inputRequest={inputRequest}
-                      onInputComplete={handleInputComplete}
+                      wsUrl={wsUrl}
+                      isRunning={isRunning}
+                      onRunFinished={handleRunFinished}
+                      onStop={handleStopRun}
                     />
                   </Panel>
                 </PanelGroup>
@@ -307,4 +274,3 @@ function App() {
 }
 
 export default App;
-
