@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal as TerminalIcon, MessageSquare, Code2, Play, Sun, Moon } from 'lucide-react';
+import { Terminal as TerminalIcon, MessageSquare, Code2, Play, Sun, Moon, Loader2 } from 'lucide-react';
 
 // Components
 import CodeEditor from './components/CodeEditor';
@@ -112,7 +112,7 @@ function App() {
     <>
       {isMobile ? (
         /* Mobile Layout: Tabs */
-        <div className="h-screen w-full bg-stone-50 dark:bg-slate-950 flex flex-col overflow-hidden transition-colors duration-300">
+        <div className="h-dvh w-full bg-stone-50 dark:bg-slate-950 flex flex-col overflow-hidden transition-colors duration-300">
           {/* Mobile Header */}
           <header className="h-14 border-b border-stone-200 dark:border-slate-800 flex items-center px-4 bg-white dark:bg-slate-900">
             <span className="font-semibold text-slate-800 dark:text-white">Jarvis AI</span>
@@ -124,8 +124,17 @@ function App() {
               >
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
               </button>
-              <button type="button" className="p-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-500/20">
-                <Play size={18} />
+              <button 
+                type="button" 
+                onClick={() => handleRunRequest(code, language)}
+                disabled={isRunning}
+                className={`p-2 rounded-lg border transition-all active:scale-95 ${
+                  isRunning 
+                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 cursor-not-allowed' 
+                    : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                }`}
+              >
+                {isRunning ? <Loader2 size={18} className="animate-spin" /> : <Play size={18} />}
               </button>
             </div>
           </header>
@@ -194,7 +203,7 @@ function App() {
         </div>
       ) : (
         /* Desktop Layout: Split Screen */
-        <div className="h-screen w-full bg-stone-50 dark:bg-slate-950 text-slate-800 dark:text-sand-100 flex flex-col overflow-hidden font-sans transition-colors duration-300">
+        <div className="h-dvh w-full bg-stone-50 dark:bg-slate-950 text-slate-800 dark:text-sand-100 flex flex-col overflow-hidden font-sans transition-colors duration-300">
           {/* Top Bar / Header */}
           <header className="h-14 border-b border-stone-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm flex items-center justify-between px-4 z-50">
             <div className="flex items-center gap-2">

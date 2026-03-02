@@ -35,6 +35,12 @@ module.exports = {
         'fade-in': 'fadeIn 0.5s ease-out',
         'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
       },
+      height: {
+        dvh: '100dvh',
+      },
+      minHeight: {
+        dvh: '100dvh',
+      },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },

@@ -128,6 +128,8 @@ const TerminalPanel = ({ wsUrl, isRunning, onRunFinished, onStop }) => {
       if (wsRef.current === ws) {
         ws.close();
         wsRef.current = null;
+        // Reset so StrictMode re-mount can reconnect with the same URL
+        prevWsUrlRef.current = null;
       }
     };
   }, [wsUrl, onRunFinished, processChunk]);
@@ -142,7 +144,7 @@ const TerminalPanel = ({ wsUrl, isRunning, onRunFinished, onStop }) => {
         // Merge the pending prompt text + user input into one completed history line
         const currentPending = pendingLineRef.current;
         if (currentPending) {
-          setHistory(h => [...h, { type: 'output', content: currentPending + ' ' + val }]);
+          setHistory(h => [...h, { type: 'output', content: currentPending + val }]);
         } else {
           setHistory(h => [...h, { type: 'stdin', content: val }]);
         }

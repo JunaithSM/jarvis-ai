@@ -125,7 +125,7 @@ const AIMentorPanel = ({ code }) => {
 
 
   return (
-    <div className="h-[calc(100vh-64px)] max-h-[calc(100vh-64px)] w-full flex relative flex-col bg-slate-50 dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div className="h-full w-full flex relative flex-col bg-slate-50 dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 overflow-hidden">
       
       {/* Header - Fixed at top */}
       <header className="shrink-0 h-12 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/60 dark:bg-slate-950/60 backdrop-blur-xl shadow-sm">

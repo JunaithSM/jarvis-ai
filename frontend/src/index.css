@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dynamic viewport height fallback chain */
+:root {
+  --app-height: 100vh;
+  --app-height: 100svh;
+  --app-height: 100dvh;
+}
+
 @layer base {
   body {
     @apply bg-slate-950 text-sand-100 font-sans antialiased overflow-hidden selection:bg-lavender-500/30 selection:text-white;

@@ -12,6 +12,7 @@
   gap: var(--space-lg);
   padding: 0 var(--space-lg) var(--space-lg);
   height: calc(100vh - 100px);
+  height: calc(100dvh - 100px);
 }
 
 .panel {
@@ -66,5 +67,6 @@
 
   .panel {
     min-height: 50vh;
+    min-height: 50dvh;
   }
 }
