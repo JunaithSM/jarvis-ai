@@ -2,9 +2,11 @@
 
 **AI-powered coding tutor environment designed for deep learning.**
 
+Live Demo: https://jarvis-ai-code-assistant.vercel.app/
+
 ## Overview
 
-Jarvis AI is a distraction-free, IDE-like environment that pairs a robust code editor with an intelligent AI mentor. The system is designed to help users learn algorithms and coding concepts through interactive guidance.
+Jarvis AI is a distraction-free, IDE-like environment that pairs a robust code editor with an intelligent AI mentor. The system is designed to help users learn algorithms and coding concepts through interactive practice and feedback.
 
 ## Features
 
